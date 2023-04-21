@@ -1,66 +1,51 @@
 package com.driver;
-import java.util.*;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@Repository
-public class BookRepository {
-    private ArrayList<Book> booklist;
-    private int id;
-    public BookRepository() {
-        this.booklist = new ArrayList<>();
-        this.id=1;
+import java.util.List;
+
+@RestController
+@RequestMapping("books")
+public class BookController {
+    @Autowired
+    BookService bookService;
+
+    // One example controller, make the rest by yourself
+    @PostMapping("/create-book")
+    public ResponseEntity createBook(@RequestBody Book book){
+        Book newbook = bookService.createBook(book);
+        return new ResponseEntity<>(newbook, HttpStatus.CREATED);
+    }
+    @GetMapping("/get-book-by-id/{id}")
+    public Book findBookById(@PathVariable("id")String id){
+        return bookService.findBookById(id);
     }
 
-    public Book save(Book book){
-        book.setId(id++);
-        booklist.add(book);
-        return book;
+    @DeleteMapping("/delete-book-by-id/{id}")
+    public String deleteBookById(@PathVariable("id") String id){
+        return bookService.deleteBookById(id);
     }
 
-    public Book findBookById(int id){
-        for(Book book : booklist){
-            if(book.getId()==id){
-                return book;
-            }
-        }
-        return null;
+    @GetMapping("/get-all-books")
+    public List<Book> getAllBooks(){
+       return bookService.findAllBooks();
+
     }
 
-    public List<Book> findAll(){
-        return booklist;
+    @GetMapping("/get-books-by-author/{name}")
+    public List<Book> getBookByAuthor(@PathVariable("name") String authorName){
+        return bookService.findBooksByAuthor(authorName);
+
     }
-
-    public void deleteBookById(int id){
-        for (Book book:booklist){
-            if(book.getId()==id){
-                booklist.remove(book);
-            }
-        }
+    @GetMapping("get-books-by-genre/{genre}")
+    public List<Book> getBookByGenre(@PathVariable("genre") String genreName){
+        return bookService.findBooksByGenre(genreName);
     }
-
-    public void deleteAll(){
-
-        booklist.clear();
-    }
-
-    public List<Book> findBooksByAuthor(String author){
-        List<Book> list = new ArrayList<>();
-        for(Book book : booklist){
-            if(book.getAuthor().equals(author)){
-                list.add(book);
-            }
-        }
-        return list;
-    }
-
-    public List<Book> findBooksByGenre(String genre){
-        List<Book> list = new ArrayList<>();
-        for(Book book : booklist){
-            if(book.getGenre().equals(genre)){
-                list.add(book);
-            }
-        }
-        return list;
+    @DeleteMapping("delete-all-books")
+    public String deleteAllBooks(){
+       return bookService.deleteAllBooks();
     }
 }
